@@ -1,0 +1,15 @@
+[submodule "LLM"]
+	path = LLM
+	url = ./LLM
+[submodule "notes"]
+	path = notes
+	url = ./notes
+[submodule "startdt"]
+	path = startdt
+	url = ./startdt
+[submodule "Ucloud"]
+	path = Ucloud
+	url = ./Ucloud
+[submodule "diary"]
+	path = diary
+	url = ./diary
