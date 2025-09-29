@@ -13,3 +13,6 @@
 [submodule "diary"]
 	path = diary
 	url = git@github.com:xiong3731/note_diary.git
+[submodule "project"]
+	path = project
+	url = git@github.com:xiong3731/note_personal_project.git
