@@ -11,4 +11,4 @@
 
 
 
-<img src="https://notebook.xiong03.cn/2025/09/26/IMG_1476 2 (2)_6be83a.jpeg" alt="IMG_1476 2 (2)" style="zoom:40%;" />
+![image-20251009下午62433266](https://notebook.xiong03.cn/2025/10/09/image-20251009下午62433266_76288e.png)
