@@ -3,8 +3,6 @@
 #### about me
 
 - Name: shaowei xiong
-
-- Birth: 2003-07-31
 - Role: sre
 
 >  Links: xiong03.cn
