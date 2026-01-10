@@ -16,3 +16,6 @@
 [submodule "project"]
 	path = project
 	url = git@github.com:xiong3731/note_personal_project.git
+[submodule "web3"]
+	path = web3
+	url = git@github.com:xiong3731/note_web3.git
