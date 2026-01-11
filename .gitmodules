@@ -1,21 +1,21 @@
 [submodule "LLM"]
-	path = LLM
+	path = 15-LLM
 	url = git@github.com:xiong3731/note_llm.git
 [submodule "notes"]
-	path = notes
+	path = 10-notes
 	url = git@github.com:xiong3731/note_notes.git
 [submodule "startdt"]
-	path = startdt
+	path = 89-startdt
 	url = git@github.com:xiong3731/note_startdt.git
 [submodule "Ucloud"]
-	path = Ucloud
+	path = 88-Ucloud
 	url = git@github.com:xiong3731/note_ucloud.git
 [submodule "diary"]
-	path = diary
+	path = 40-diary
 	url = git@github.com:xiong3731/note_diary.git
 [submodule "project"]
-	path = project
+	path = 30-project
 	url = git@github.com:xiong3731/note_personal_project.git
 [submodule "web3"]
-	path = web3
+	path = 20-web3
 	url = git@github.com:xiong3731/note_web3.git
