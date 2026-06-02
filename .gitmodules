@@ -13,9 +13,6 @@
 [submodule "diary"]
 	path = 40-diary
 	url = git@github.com:xiong3731/note_diary.git
-[submodule "project"]
-	path = 30-project
-	url = git@github.com:xiong3731/note_personal_project.git
 [submodule "web3"]
 	path = 20-web3
 	url = git@github.com:xiong3731/note_web3.git
