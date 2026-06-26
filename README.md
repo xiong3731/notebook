@@ -18,6 +18,7 @@
 本项目使用 Git Submodule 管理。
 
 **初次克隆**
+
 ```bash
 git clone --recursive git@github.com:xiong3731/notebook.git
 ```
