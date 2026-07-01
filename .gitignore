@@ -1,2 +1,8 @@
 .DS_Store
 .obsidian
+.claude/
+.cursor/
+.codex/
+.trash/
+*.log
+node_modules/
