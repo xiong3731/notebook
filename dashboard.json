@@ -1,0 +1,305 @@
+{
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.4.0"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-opensearch-datasource",
+      "name": "OpenSearch",
+      "version": "2.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "复刻 modelverse-manager /monitoring-metrics 页面的「平台请求速率」图表，Grafana 直连 OpenSearch 审计日志，不经过 manager 后端。",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "${DS_OPENSEARCH}"
+      },
+      "description": "按模型聚合的请求速率（请求数/分钟），等价于 manager 的 metric=request_rpm & group_by=model_name。\n\n换算方式：date_histogram 的 doc_count 经 Bucket Script 乘 60000 再除以桶宽毫秒数（$__interval_ms），得到每分钟请求数——与后端 doc_count / intervalMinutes 一致。\n\n与页面的已知差异：\n1) 桶宽：后端按时间范围固定跳档（≤1h→1m，≤6h→5m，≤24h→15m，≤2d→30m，否则 1h），本图用 auto（按面板像素宽度计算）。同一时间范围下两边桶宽可能不同，曲线绝对值会有差异——这是平均化粒度不同，不是数据错。若需严格对齐，把 Date Histogram 的 Interval 从 auto 改成 1m。\n2) Top-N：后端 terms size=25，前端再按最新点排序只画 Top 15；本图只有 terms size=25 一层截断，系列会比页面多。\n3) 端点裁剪：页面只丢弃最后一个未写满的桶；本图用 trimEdges=1，首尾各丢一个点（插件行为是对称的）。首桶同样因对齐到整桶边界而不完整，所以对称裁剪在这里是合理的。\n4) model_name 缺失的文档：后端补 missing=\"unknown\" 后前端再跳过该系列；本图不设 missing，缺失字段的文档不进桶。两边都不显示 unknown，因此各系列之和都小于「请求总量」。\n\n桶数保护：面板最多请求约 500 个时间点，Date Histogram 显式使用 $__interval，并将模型系列限制为 Top 15，避免 terms × date_histogram 超过 search.max_buckets。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqpm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "alias": "{{model_name}}",
+          "bucketAggs": [
+            {
+              "field": "model_name",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "15"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "modelverse_start_time",
+              "id": "4",
+              "settings": {
+                "interval": "$__interval",
+                "min_doc_count": "0",
+                "trimEdges": "1"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "${DS_OPENSEARCH}"
+          },
+          "format": "table",
+          "luceneQueryType": "Metric",
+          "metrics": [
+            {
+              "hide": true,
+              "id": "1",
+              "type": "count"
+            },
+            {
+              "id": "3",
+              "pipelineVariables": [
+                {
+                  "name": "count",
+                  "pipelineAgg": "1"
+                }
+              ],
+              "settings": {
+                "script": "params.count * 60000 / $__interval_ms"
+              },
+              "type": "bucket_script"
+            }
+          ],
+          "query": "_exists_:request_id AND model_name:${model:lucene} AND provider_name:${provider:lucene} AND top_organization_id:${org:lucene}",
+          "queryType": "lucene",
+          "refId": "A",
+          "timeField": "modelverse_start_time"
+        }
+      ],
+      "title": "平台请求速率",
+      "type": "timeseries",
+      "maxDataPoints": 500
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": [
+    "modelverse",
+    "opensearch",
+    "audit-log"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "description": "选择 ModelVerse 审计日志所在的 OpenSearch 数据源",
+        "hide": 0,
+        "includeAll": false,
+        "label": "OpenSearch 数据源",
+        "multi": false,
+        "name": "DS_OPENSEARCH",
+        "options": [],
+        "query": "grafana-opensearch-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "allValue": "*",
+        "current": {},
+        "datasource": {
+          "type": "grafana-opensearch-datasource",
+          "uid": "${DS_OPENSEARCH}"
+        },
+        "definition": "terms(model_name)",
+        "description": "模型名，对应页面的「模型」筛选器。选 All 时子句退化为 model_name:*（自定义 allValue 不经过 lucene 转义）。",
+        "hide": 0,
+        "includeAll": true,
+        "label": "模型",
+        "multi": true,
+        "name": "model",
+        "options": [],
+        "query": "{\"find\": \"terms\", \"field\": \"model_name\", \"query\": \"_exists_:request_id\", \"size\": 200}",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "*",
+        "current": {},
+        "datasource": {
+          "type": "grafana-opensearch-datasource",
+          "uid": "${DS_OPENSEARCH}"
+        },
+        "definition": "terms(provider_name)",
+        "description": "供应商渠道名，对应页面的「供应商」筛选器。",
+        "hide": 0,
+        "includeAll": true,
+        "label": "供应商",
+        "multi": true,
+        "name": "provider",
+        "options": [],
+        "query": "{\"find\": \"terms\", \"field\": \"provider_name\", \"query\": \"_exists_:request_id\", \"size\": 200}",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": "*",
+        "current": {},
+        "datasource": {
+          "type": "grafana-opensearch-datasource",
+          "uid": "${DS_OPENSEARCH}"
+        },
+        "definition": "terms(top_organization_id)",
+        "description": "顶层组织 ID，对应页面的「组织」筛选器。",
+        "hide": 0,
+        "includeAll": true,
+        "label": "组织",
+        "multi": true,
+        "name": "org",
+        "options": [],
+        "query": "{\"find\": \"terms\", \"field\": \"top_organization_id\", \"query\": \"_exists_:request_id\", \"size\": 200}",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "timezone": "browser",
+  "title": "ModelVerse 平台请求速率",
+  "uid": "modelverse-platform-request-rate",
+  "version": 1,
+  "weekStart": ""
+}
